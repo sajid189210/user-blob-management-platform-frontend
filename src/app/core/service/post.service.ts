@@ -35,4 +35,16 @@ export class PostService {
     deletePost(id: string): Observable<IResponse<null>> {
         return this._http.delete<IResponse<null>>(`${this._postUrl}/${id}`);
     }
+
+    toggleLike(postId: string): Observable<IResponse<{ liked: boolean; likedIds: string[]; likes: number }>> {
+        return this._http.post<IResponse<{ liked: boolean; likedIds: string[]; likes: number }>>(`${this._postUrl}/${postId}/like`, {});
+    }
+
+    getLikedPosts(): Observable<IResponse<IPost[]>> {
+        return this._http.get<IResponse<IPost[]>>(`${this._postUrl}/liked`);
+    }
+
+    getLikedIds(): Observable<IResponse<string[]>> {
+        return this._http.get<IResponse<string[]>>(`${this._postUrl}/liked/ids`);
+    }
 }

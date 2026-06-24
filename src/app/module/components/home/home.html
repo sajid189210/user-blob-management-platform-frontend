@@ -54,10 +54,18 @@
       Create your first post
     </button>
   </div>
+  } @else if (filteredPosts.length === 0) {
+  <div class="flex flex-col items-center justify-center py-20">
+    <div class="flex h-20 w-20 items-center justify-center rounded-full bg-gray-100 mb-6">
+      <i class="fas fa-search text-4xl text-gray-400"></i>
+    </div>
+    <h3 class="text-xl font-semibold text-gray-900 mb-2">No results found</h3>
+    <p class="text-gray-500 text-sm">No posts match your search "{{ searchQuery }}". Try a different keyword.</p>
+  </div>
   } @else {
   <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-    @for (post of posts(); track post.id) {
-    <app-post-card [post]="post" />
+    @for (post of filteredPosts; track post.id) {
+    <app-post-card [post]="post" [isLiked]="isLiked(post.id)" [currentUserId]="currentUserId" (toggleLike)="onToggleLike($event)" />
     }
   </div>
   }

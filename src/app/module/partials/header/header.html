@@ -15,11 +15,12 @@
     </a>
 
     <div class="relative flex-1 max-w-md mx-auto">
-      <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400"></i>
+      <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400 cursor-pointer" (click)="onSearch()"></i>
       <input
         type="search"
         name="search"
         [(ngModel)]="searchQuery"
+        (keyup.enter)="onSearch()"
         placeholder="Search posts..."
         class="w-full rounded-full border border-gray-300 bg-gray-50 py-2 pl-10 pr-4 text-sm text-gray-900 placeholder-gray-400 transition-colors focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
       />
@@ -30,9 +31,9 @@
         <i class="fas fa-pen-fancy text-xs"></i>
         <span>My Posts</span>
       </a>
-      <a routerLink="/favorites" class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900">
+      <a routerLink="/liked" class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900">
         <i class="fas fa-heart text-xs"></i>
-        <span>Favorites</span>
+        <span>Liked</span>
       </a>
     </nav>
 

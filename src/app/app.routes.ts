@@ -3,6 +3,7 @@ import { Auth } from './module/components/auth/auth';
 import { Home } from './module/components/home/home';
 import { PostDetail } from './module/components/post-detail/post-detail';
 import { MyPosts } from './module/components/my-posts/my-posts';
+import { Liked } from './module/components/liked/liked';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
 
@@ -12,7 +13,7 @@ export const routes: Routes = [
   
   { path: 'home', component: Home, canActivate: [authGuard] },
   { path: 'my-posts', component: MyPosts, canActivate: [authGuard] },
-  { path: 'favorites', component: Home, canActivate: [authGuard] },
+  { path: 'liked', component: Liked, canActivate: [authGuard] },
   { path: 'post/:id', component: PostDetail, canActivate: [authGuard] },
   
   { path: '', redirectTo: '/login', pathMatch: 'full' },

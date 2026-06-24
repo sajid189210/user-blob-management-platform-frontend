@@ -23,6 +23,15 @@ export class Header {
 
   protected user$ = this._store.select(state => state.auth.user);
 
+  protected onSearch(): void {
+    const q = this.searchQuery.trim();
+    if (q) {
+      this._router.navigate(['/home'], { queryParams: { search: q } });
+    } else {
+      this._router.navigate(['/home']);
+    }
+  }
+
   toggleDropdown() {
     this.showDropdown = !this.showDropdown;
   }
