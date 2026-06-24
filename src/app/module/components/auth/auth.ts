@@ -1,6 +1,11 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Store } from '@ngrx/store';
+import { AuthService } from '../../../core/service/auth.service';
+import { NotificationService } from '../../../core/service/notification.service';
+import { loginSuccess, signupSuccess } from '../../../store/auth/auth.actions';
 
 @Component({
   selector: 'app-auth',
@@ -9,14 +14,17 @@ import { Router, RouterModule, ActivatedRoute } from '@angular/router';
   styleUrl: './auth.scss',
 })
 export class Auth implements OnInit {
+  private readonly _notification = inject(NotificationService);
+  private readonly _store = inject(Store);
+  private readonly _authService = inject(AuthService);
   private readonly _router = inject(Router);
   private readonly _route = inject(ActivatedRoute);
 
   mode: 'login' | 'signup' = 'login';
+  name = '';
   email = '';
   password = '';
   confirmPassword = '';
-
 
   ngOnInit() {
     this._route.data.subscribe(data => {
@@ -57,9 +65,22 @@ export class Auth implements OnInit {
   }
 
   login() {
+    this._authService.login(this.email, this.password).subscribe({
+      next: (res) => {
+        this._store.dispatch(loginSuccess({ user: res.data.user, accessToken: res.data.accessToken }));
+        this._notification.success('Welcome back to DraftPad!');
+        this._router.navigate(['/home']);
+      },
+    });
   }
 
   signup() {
+    this._authService.signup(this.name, this.email, this.password).subscribe({
+      next: (res) => {
+        this._notification.success(res.message);
+        this._router.navigate(['/login']);
+      }
+    });
   }
 
   switchMode() {
