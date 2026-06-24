@@ -15,15 +15,17 @@
     </a>
 
     <div class="relative flex-1 max-w-md mx-auto">
-      <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400 cursor-pointer" (click)="onSearch()"></i>
       <input
         type="search"
         name="search"
         [(ngModel)]="searchQuery"
-        (keyup.enter)="onSearch()"
         placeholder="Search posts..."
         class="w-full rounded-full border border-gray-300 bg-gray-50 py-2 pl-10 pr-4 text-sm text-gray-900 placeholder-gray-400 transition-colors focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
       />
+      <button type="button" (click)="onSearch()"
+        class="absolute right-1 top-1/2 -translate-y-1/2 flex items-center justify-center rounded-full bg-indigo-600 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-indigo-700">
+        <i class="fas fa-search text-xs"></i>
+      </button>
     </div>
 
     <nav class="hidden md:flex items-center gap-1">

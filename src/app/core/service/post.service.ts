@@ -16,6 +16,10 @@ export class PostService {
         return this._http.get<IResponse<IPost[]>>(`${this._postUrl}/published`);
     }
 
+    searchPosts(query: string): Observable<IResponse<IPost[]>> {
+        return this._http.get<IResponse<IPost[]>>(`${this._postUrl}/search`, { params: { q: query } });
+    }
+
     getPostsByAuthorId(authorId: string): Observable<IResponse<IPost[]>> {
         return this._http.get<IResponse<IPost[]>>(`${this._postUrl}/author/${authorId}`);
     }

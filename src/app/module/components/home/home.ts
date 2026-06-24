@@ -37,20 +37,10 @@ export class Home implements OnInit {
 
     this._route.queryParams.subscribe(params => {
       this.searchQuery = (params['search'] || '').toLowerCase();
+      this.fetchPosts();
     });
 
-    await this.fetchPosts();
     await this.fetchLikedIds();
-  }
-
-  protected get filteredPosts(): IPost[] {
-    if (!this.searchQuery) return this.posts();
-    const q = this.searchQuery;
-    return this.posts().filter(p =>
-      p.title.toLowerCase().includes(q) ||
-      p.body.toLowerCase().includes(q) ||
-      p.tags?.some(t => t.toLowerCase().includes(q))
-    );
   }
 
   protected isLiked(postId: string): boolean {
@@ -58,9 +48,15 @@ export class Home implements OnInit {
   }
 
   protected async fetchPosts(): Promise<void> {
+    this.loading.set(true);
     try {
-      const res = await firstValueFrom(this._postService.getAllPublishedPosts());
-      this.posts.set(res?.data || []);
+      if (this.searchQuery) {
+        const res = await firstValueFrom(this._postService.searchPosts(this.searchQuery));
+        this.posts.set(res?.data || []);
+      } else {
+        const res = await firstValueFrom(this._postService.getAllPublishedPosts());
+        this.posts.set(res?.data || []);
+      }
     } catch {
       this.posts.set([]);
     } finally {
