@@ -19,8 +19,8 @@ export class Favorites implements OnInit {
   protected posts = signal<IPost[]>([]);
   protected loading = signal(true);
 
-  async ngOnInit(): Promise<void> {
-    await this.fetchLiked();
+  ngOnInit(): void {
+    this.fetchLiked();
   }
 
   protected async fetchLiked(): Promise<void> {

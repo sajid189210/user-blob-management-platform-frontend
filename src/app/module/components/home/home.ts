@@ -30,17 +30,17 @@ export class Home implements OnInit {
   protected showModal = false;
   protected editingPost: IPost | undefined;
 
-  async ngOnInit(): Promise<void> {
+  ngOnInit(): void {
     this._store.select(state => state.auth.user).subscribe(user => {
       if (user) this.currentUserId = user.id;
     });
 
     this._route.queryParams.subscribe(params => {
-      this.searchQuery = (params['search'] || '').toLowerCase();
+      this.searchQuery = (params['search'] ?? '').toLowerCase();
       this.fetchPosts();
     });
 
-    await this.fetchLikedIds();
+    this.fetchLikedIds();
   }
 
   protected isLiked(postId: string): boolean {

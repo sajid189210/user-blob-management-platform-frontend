@@ -26,7 +26,7 @@ export class MyPosts implements OnInit {
   protected showModal = false;
   protected editingPost: IPost | undefined;
 
-  async ngOnInit(): Promise<void> {
+  ngOnInit(): void {
     let userId = '';
     this._store.select(state => state.auth.user).subscribe(user => {
       if (user) userId = user.id;
@@ -37,14 +37,11 @@ export class MyPosts implements OnInit {
       return;
     }
 
-    try {
-      const res = await firstValueFrom(this._postService.getPostsByAuthorId(userId));
-      this.posts.set(res?.data || []);
-    } catch {
-      this.posts.set([]);
-    } finally {
-      this.loading.set(false);
-    }
+    this._postService.getPostsByAuthorId(userId).subscribe({
+      next: (res) => this.posts.set(res?.data || []),
+      error: () => this.posts.set([]),
+      complete: () => this.loading.set(false),
+    });
   }
 
   protected get publishedPosts(): IPost[] {

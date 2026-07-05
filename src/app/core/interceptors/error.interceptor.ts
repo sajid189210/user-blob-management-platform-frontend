@@ -84,9 +84,9 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       }
 
       const status = err.status;
-      let message = err.error?.message || err.message;
+      let message = err.error?.message ?? err.message;
       if (!message || status >= 500) {
-        message = ERROR_MESSAGES[status] || 'An unexpected error occurred.';
+        message = ERROR_MESSAGES[status] ?? 'An unexpected error occurred.';
       }
       notification.error(message);
       return throwError(() => err);

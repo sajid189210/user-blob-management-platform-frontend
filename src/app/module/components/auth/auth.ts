@@ -1,11 +1,10 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
-import { HttpErrorResponse } from '@angular/common/http';
 import { Store } from '@ngrx/store';
 import { AuthService } from '../../../core/service/auth.service';
 import { NotificationService } from '../../../core/service/notification.service';
-import { loginSuccess, signupSuccess } from '../../../store/auth/auth.actions';
+import { loginSuccess } from '../../../store/auth/auth.actions';
 
 @Component({
   selector: 'app-auth',
@@ -26,9 +25,9 @@ export class Auth implements OnInit {
   password = '';
   confirmPassword = '';
 
-  ngOnInit() {
+  ngOnInit(): void {
     this._route.data.subscribe(data => {
-      this.mode = data['mode'] || 'login';
+      this.mode = data['mode'] ?? 'login';
     });
   }
 

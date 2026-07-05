@@ -22,7 +22,7 @@ export class PostCard {
   }
 
   protected get displayName(): string {
-    return this.post.authorName || this.post.authorEmail?.split('@')[0] || 'Unknown';
+    return this.post.authorName ?? this.post.authorEmail?.split('@')[0] ?? 'Unknown';
   }
 
   protected get initial(): string {

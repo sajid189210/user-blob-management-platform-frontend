@@ -25,11 +25,11 @@ export class Liked implements OnInit {
   protected loading = signal(true);
   protected currentUserId = '';
 
-  async ngOnInit(): Promise<void> {
+  ngOnInit(): void {
     this._store.select(state => state.auth.user).subscribe(user => {
       if (user) this.currentUserId = user.id;
     });
-    await this.fetchLiked();
+    this.fetchLiked();
   }
 
   protected isLiked(postId: string): boolean {

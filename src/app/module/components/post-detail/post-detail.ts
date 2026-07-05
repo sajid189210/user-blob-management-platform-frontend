@@ -31,11 +31,15 @@ export class PostDetail implements OnInit {
   protected showModal = false;
   protected editingPost: IPost | undefined;
 
-  async ngOnInit(): Promise<void> {
+  ngOnInit(): void {
     this._store.select(state => state.auth.user).subscribe(user => {
       if (user) this.currentUserId = user.id;
     });
 
+    this.loadPost();
+  }
+
+  private async loadPost(): Promise<void> {
     try {
       const id = this._route.snapshot.paramMap.get('id');
       if (!id) {
@@ -49,7 +53,7 @@ export class PostDetail implements OnInit {
       ]);
 
       this.post = postRes?.data ?? null;
-      this.isLiked = (likedRes?.data || []).includes(id);
+      this.isLiked = (likedRes?.data ?? []).includes(id);
       if (!this.post) this.error.set(true);
     } catch (e) {
       console.error('Failed to load post:', e);
@@ -64,7 +68,7 @@ export class PostDetail implements OnInit {
   }
 
   protected get displayName(): string {
-    return this.post?.authorName || this.post?.authorEmail?.split('@')[0] || 'Unknown';
+    return this.post?.authorName ?? this.post?.authorEmail?.split('@')[0] ?? 'Unknown';
   }
 
   protected get initial(): string {

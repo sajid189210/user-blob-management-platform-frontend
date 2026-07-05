@@ -13,7 +13,7 @@
       </div>
       <button
         type="button"
-        (click)="close.emit()"
+        (click)="closeModal.emit()"
         class="flex h-8 w-8 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
       >
         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -154,10 +154,10 @@
       <div class="flex items-center justify-end gap-3 border-t border-gray-200 pt-5">
         <button
           type="button"
-          (click)="close.emit()"
-          class="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
-        >
-          Cancel
+        (click)="closeModal.emit()"
+        class="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+      >
+        Cancel
         </button>
         <button
           type="submit"

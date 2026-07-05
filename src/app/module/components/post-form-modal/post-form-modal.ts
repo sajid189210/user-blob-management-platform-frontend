@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { IPost, PostStatusType } from '../../../core/interface/post.interface';
@@ -14,10 +14,10 @@ const TYPE_LABELS = 'JPEG, PNG, WebP or GIF';
   imports: [FormsModule],
   templateUrl: './post-form-modal.html',
   styleUrl: './post-form-modal.scss',
-})
-export class PostFormModal implements OnInit {
+}) 
+export class PostFormModal implements OnChanges { 
   @Input() post?: IPost;
-  @Output() close = new EventEmitter<void>();
+  @Output() closeModal = new EventEmitter<void>();
   @Output() saved = new EventEmitter<void>();
 
   protected title = '';
@@ -34,16 +34,14 @@ export class PostFormModal implements OnInit {
     return !!this.post;
   }
 
-  constructor(
-    private postService: PostService,
-    private notification: NotificationService,
-  ) { }
+  private readonly _postService = inject(PostService);
+  private readonly _notification = inject(NotificationService);
 
-  ngOnInit(): void {
+  ngOnChanges(_changes: SimpleChanges): void {
     if (this.post) {
       this.title = this.post.title;
       this.body = this.post.body;
-      this.imageUrl = this.post.imageUrl || '';
+      this.imageUrl = this.post.imageUrl ?? '';
       this.status = this.post.status;
       this.tags = this.post.tags.join(', ');
     }
@@ -135,17 +133,17 @@ export class PostFormModal implements OnInit {
       }
 
       if (this.isEdit) {
-        await firstValueFrom(this.postService.updatePost(this.post!.id, formData));
-        this.notification.success('Post updated successfully.');
+        await firstValueFrom(this._postService.updatePost(this.post!.id, formData));
+        this._notification.success('Post updated successfully.');
       } else {
-        await firstValueFrom(this.postService.createPost(formData));
-        this.notification.success('Post created successfully.');
+        await firstValueFrom(this._postService.createPost(formData));
+        this._notification.success('Post created successfully.');
       }
 
       this.saved.emit();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : '';
-      this.notification.error(message || (this.isEdit ? 'Failed to update post.' : 'Failed to create post.'));
+      this._notification.error(message || (this.isEdit ? 'Failed to update post.' : 'Failed to create post.'));
     } finally {
       this.submitting = false;
     }
@@ -153,7 +151,7 @@ export class PostFormModal implements OnInit {
 
   protected onBackdropClick(event: MouseEvent): void {
     if ((event.target as HTMLElement).classList.contains('modal-backdrop')) {
-      this.close.emit();
+      this.closeModal.emit();
     }
   }
 }
