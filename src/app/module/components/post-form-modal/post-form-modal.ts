@@ -1,9 +1,13 @@
 import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { FormsModule } from '@angular/forms';
-import { IPost, IPostFormData, PostStatusType } from '../../../core/interface/post.interface';
+import { IPost, PostStatusType } from '../../../core/interface/post.interface';
 import { PostService } from '../../../core/service/post.service';
 import { NotificationService } from '../../../core/service/notification.service';
+
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const TYPE_LABELS = 'JPEG, PNG, WebP or GIF';
 
 @Component({
   selector: 'app-post-form-modal',
@@ -24,6 +28,7 @@ export class PostFormModal implements OnInit {
   protected status: PostStatusType = 'draft';
   protected dragOver = false;
   protected submitting = false;
+  protected imageError = '';
 
   protected get isEdit(): boolean {
     return !!this.post;
@@ -44,12 +49,30 @@ export class PostFormModal implements OnInit {
     }
   }
 
+  private validateImage(file: File): string {
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      return `Invalid file type. Only ${TYPE_LABELS} images are allowed.`;
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      return `File is too large. Maximum size is 5MB.`;
+    }
+    return '';
+  }
+
   protected onFileSelected(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
-    if (file) {
-      this.imageFile = file;
-      this.imageUrl = URL.createObjectURL(file);
+    if (!file) return;
+
+    const error = this.validateImage(file);
+    if (error) {
+      this.imageError = error;
+      (event.target as HTMLInputElement).value = '';
+      return;
     }
+
+    this.imageError = '';
+    this.imageFile = file;
+    this.imageUrl = URL.createObjectURL(file);
   }
 
   protected onDragOver(event: DragEvent): void {
@@ -66,20 +89,39 @@ export class PostFormModal implements OnInit {
     event.preventDefault();
     this.dragOver = false;
     const file = event.dataTransfer?.files[0];
-    if (file && file.type.startsWith('image/')) {
-      this.imageFile = file;
-      this.imageUrl = URL.createObjectURL(file);
+    if (!file) return;
+
+    const error = this.validateImage(file);
+    if (error) {
+      this.imageError = error;
+      return;
     }
+
+    this.imageError = '';
+    this.imageFile = file;
+    this.imageUrl = URL.createObjectURL(file);
   }
 
   protected removeImage(): void {
     if (this.imageUrl) URL.revokeObjectURL(this.imageUrl);
     this.imageUrl = '';
     this.imageFile = undefined;
+    this.imageError = '';
+  }
+
+  protected changeImage(input: HTMLInputElement): void {
+    this.removeImage();
+    input.click();
   }
 
   protected async onSubmit(): Promise<void> {
     if (this.submitting) return;
+
+    if (!this.isEdit && !this.imageFile && !this.imageUrl) {
+      this.imageError = 'Please select an image for your post.';
+      return;
+    }
+
     this.submitting = true;
 
     try {
@@ -101,8 +143,9 @@ export class PostFormModal implements OnInit {
       }
 
       this.saved.emit();
-    } catch {
-      this.notification.error(this.isEdit ? 'Failed to update post.' : 'Failed to create post.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : '';
+      this.notification.error(message || (this.isEdit ? 'Failed to update post.' : 'Failed to create post.'));
     } finally {
       this.submitting = false;
     }
