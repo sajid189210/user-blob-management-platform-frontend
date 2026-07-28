@@ -1,11 +1,12 @@
-import { HttpInterceptorFn, HttpRequest, HttpHandlerFn } from '@angular/common/http';
+import { HttpInterceptorFn, HttpRequest, HttpHandlerFn, HttpEvent } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Router } from '@angular/router';
-import { BehaviorSubject, catchError, filter, switchMap, take, throwError } from 'rxjs';
+import { BehaviorSubject, catchError, filter, Observable, switchMap, take, throwError } from 'rxjs';
 import { AuthService } from '../service/auth.service';
 import { NotificationService } from '../service/notification.service';
 import { loginSuccess, logout } from '../../store/auth/auth.actions';
+import { selectAccessToken } from '../../store/auth/auth.selectors';
 
 const ERROR_MESSAGES: Record<number, string> = {
   400: 'Invalid request. Please check your input.',
@@ -22,7 +23,7 @@ const ERROR_MESSAGES: Record<number, string> = {
 let isRefreshing = false;
 const refreshSubject = new BehaviorSubject<boolean | null>(null);
 
-function refreshTokens(store: Store, authService: AuthService, router: Router, notification: NotificationService) {
+function refreshTokens(store: Store, authService: AuthService, router: Router, notification: NotificationService): Observable<boolean> {
   isRefreshing = true;
   refreshSubject.next(null);
 
@@ -35,19 +36,19 @@ function refreshTokens(store: Store, authService: AuthService, router: Router, n
     }),
     catchError((refreshErr) => {
       isRefreshing = false;
-      authService.logout().subscribe({ error: () => {} });
+      authService.logout().subscribe({ error: () => { } });
       store.dispatch(logout());
       router.navigate(['/login']);
       notification.error('Session expired. Please log in again.');
       refreshSubject.next(false);
-      return throwError(() => refreshErr);
+      return throwError(() => new Error('Session expired'));
     }),
   );
 }
 
-function retryWithNewToken(req: HttpRequest<unknown>, next: HttpHandlerFn, store: Store) {
+function retryWithNewToken(req: HttpRequest<unknown>, next: HttpHandlerFn, store: Store): Observable<HttpEvent<unknown>> {
   let token = '';
-  store.select((state: any) => state.auth?.accessToken).pipe(take(1)).subscribe(t => token = t);
+  store.select(selectAccessToken).pipe(take(1)).subscribe(t => token = t!);
   const cloned = req.clone({ setHeaders: { Authorization: `Bearer ${token}` } });
   return next(cloned);
 }
@@ -78,7 +79,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
             if (result) {
               return retryWithNewToken(req, next, store);
             }
-            return throwError(() => err);
+return throwError(() => new Error('Authentication failed'));
           }),
         );
       }
